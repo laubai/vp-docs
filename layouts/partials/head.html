@@ -125,10 +125,10 @@
   {{- end }}
   
   {{ $sass := resources.Get "sass/patternfly.scss" }}
-  {{ $style := $sass | resources.ToCSS }}
+  {{ $style := $sass | css.Sass }}
   <link rel="stylesheet" href="{{ $style.Permalink }}">
   {{ $sass := resources.Get "sass/patternfly-addons.scss" }}
-  {{ $style := $sass | resources.ToCSS }}
+  {{ $style := $sass | css.Sass }}
   <link rel="stylesheet" href="{{ $style.Permalink }}">
   <link rel="stylesheet" href="/css/custom.css">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.3.0/css/solid.css">
