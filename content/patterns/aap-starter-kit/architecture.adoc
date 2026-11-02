@@ -12,13 +12,13 @@ include::modules/comm-attributes.adoc[]
 [id="aap-starter-kit-architecture"]
 = Architecture
 
-This page describes component schematics for each install variant.
+Each install variant deploys a different set of components on the single hub cluster.
 For what each variant installs on the cluster and which overrides apply, see link:/patterns/aap-starter-kit/installation-details/[Installation details].
 
 [id="architecture-common"]
 == Common components
 
-Every variant deploys these components on the single hub cluster:
+Every variant deploys the following components on the single hub cluster:
 
 [cols="2,3",options="header"]
 |===
@@ -43,7 +43,7 @@ Every variant deploys these components on the single hub cluster:
 | Loads CaC from the configured repository (default: `agof_null_config`)
 |===
 
-Related charts:
+For more information about each component, see the charts in the following validated patterns:
 
 * link:https://github.com/validatedpatterns/aap-instance-chart[ansible-automation-platform-instance]
 * link:https://github.com/validatedpatterns/openshift-data-foundations-chart[openshift-data-foundations]
@@ -89,8 +89,8 @@ Deploys AAP 2.7 with controller and minimal CaC.
 Automation hub and Lightspeed are disabled through
 link:https://github.com/validatedpatterns/aap-starter-kit/blob/main/overrides/values-aap-instance-minimal.yaml[`overrides/values-aap-instance-minimal.yaml`].
 
-.aap-architecture-minimal-aap
-image::/images/aap-starter-kit/aap-architecture-minimal-aap.png[AAP Starter Kit architecture for the minimal-aap variant,title="AAP Starter Kit architecture (minimal-aap)"]
+.AAP Starter Kit architecture (minimal-aap)
+image::/images/aap-starter-kit/aap-architecture-minimal-aap.png[""High level architecture of the minimal-aap variant of AAP Starter Kit"]
 
 draw.io source: link:/images/aap-starter-kit/aap-architecture-minimal-aap.drawio[`aap-architecture-minimal-aap.drawio`]
 
@@ -111,15 +111,15 @@ draw.io source: link:/images/aap-starter-kit/aap-architecture-minimal-aap.drawio
 [id="architecture-aap-with-hub"]
 === `aap-with-hub` schematic
 
-Adds {ocp-data-short} for RWX storage and enables automation hub.
+Adds {ocp-data-short} for ReadWriteMany (RWX) storage and enables automation hub.
 Lightspeed remains disabled.
 Instance flags come from
 link:https://github.com/validatedpatterns/aap-starter-kit/blob/main/overrides/values-aap-instance-with-hub.yaml[`overrides/values-aap-instance-with-hub.yaml`].
-ODF object storage is disabled in
+{ocp-data-short} object storage is disabled in
 link:https://github.com/validatedpatterns/aap-starter-kit/blob/main/overrides/values-odf-chart.yaml[`overrides/values-odf-chart.yaml`].
 
-.aap-architecture-aap-with-hub
-image::/images/aap-starter-kit/aap-architecture-aap-with-hub.png[AAP Starter Kit architecture for the aap-with-hub variant,title="AAP Starter Kit architecture (aap-with-hub)"]
+.AAP Starter Kit architecture (aap-with-hub)
+image::/images/aap-starter-kit/aap-architecture-aap-with-hub.png["High level architecture of the aap-with-hub variant of AAP Starter Kit"]
 
 draw.io source: link:/images/aap-starter-kit/aap-architecture-aap-with-hub.drawio[`aap-architecture-aap-with-hub.drawio`]
 
@@ -144,8 +144,8 @@ Adds CloudNativePG and Automation Orchestrator on top of the minimal AAP instanc
 PostgreSQL 15 for Orchestrator and Temporal databases is provided by the `vp-cloudnative-pg-cluster` chart with overrides in
 link:https://github.com/validatedpatterns/aap-starter-kit/blob/main/overrides/values-vp-cloudnative-pg-ao.yaml[`overrides/values-vp-cloudnative-pg-ao.yaml`].
 
-.aap-architecture-aap-with-ao
-image::/images/aap-starter-kit/aap-architecture-aap-with-ao.png[AAP Starter Kit architecture for the aap-with-ao variant,title="AAP Starter Kit architecture (aap-with-ao)"]
+.AAP Starter Kit architecture (aap-with-ao)
+image::/images/aap-starter-kit/aap-architecture-aap-with-ao.png["High level architecture of the aap-with-ao variant of AAP Starter Kit"]
 
 draw.io source: link:/images/aap-starter-kit/aap-architecture-aap-with-ao.drawio[`aap-architecture-aap-with-ao.drawio`]
 
@@ -154,7 +154,7 @@ draw.io source: link:/images/aap-starter-kit/aap-architecture-aap-with-ao.drawio
 | Layer | What runs
 
 | Storage
-| Cluster default storage for CNPG volumes (no {ocp-data-short})
+| Cluster default storage for CloudNativePG volumes (no {ocp-data-short})
 
 | AAP features
 | Controller; automation hub off; Lightspeed off
@@ -175,12 +175,12 @@ Prefer an externally supported PostgreSQL 15 instance when a supported database 
 [id="architecture-complete-aap-ao"]
 === `complete-aap-ao` schematic
 
-Full stack: automation hub, Lightspeed, {ocp-data-short}, CloudNativePG, and Automation Orchestrator.
+This variant deploys the full stack: automation hub, Lightspeed, {ocp-data-short}, CloudNativePG, and Automation Orchestrator.
 Instance flags come from
 link:https://github.com/validatedpatterns/aap-starter-kit/blob/main/overrides/values-aap-instance-complete.yaml[`overrides/values-aap-instance-complete.yaml`].
 
-.aap-architecture-complete-aap-ao
-image::/images/aap-starter-kit/aap-architecture-complete-aap-ao.png[AAP Starter Kit architecture for the complete-aap-ao variant,title="AAP Starter Kit architecture (complete-aap-ao)"]
+.AAP Starter Kit architecture (complete-aap-ao)
+image::/images/aap-starter-kit/aap-architecture-complete-aap-ao.png["High level architecture of the complete-aap-ao variant of AAP Starter Kit"]
 
 draw.io source: link:/images/aap-starter-kit/aap-architecture-complete-aap-ao.drawio[`aap-architecture-complete-aap-ao.drawio`]
 
@@ -208,7 +208,7 @@ Certificate and secret handling uses Vault and External Secrets rather than loca
 
 [cols="2,3",options="header"]
 |===
-| Secret / policy | Used by
+| Secret or policy | Used by
 
 | `aap-manifest`
 | AAP entitlement (all variants)
@@ -220,13 +220,13 @@ Certificate and secret handling uses Vault and External Secrets rather than loca
 | Optional CaC secret overlay for `aap-config`
 
 | `orchestrator-postgres-secret`, `temporal-postgres-secret`, `temporal-visibility-postgres-secret`
-| `aap-with-ao` and `complete-aap-ao` (CNPG / AO)
+| `aap-with-ao` and `complete-aap-ao` (CloudNativePG and Automation Orchestrator)
 
 | `postgresPasswordPolicy`
-| Alphanumeric generated passwords so URL-encoded characters do not break AO Alembic or configparser
+| Alphanumeric generated passwords so URL-encoded characters do not break Automation Orchestrator Alembic or configparser
 |===
 
-Helper scripts in the pattern repository:
+The pattern repository provides the following helper scripts:
 
 * `scripts/ansible_get_credentials.sh` — retrieves AAP admin credentials
 * `scripts/ao_get_credentials.sh` — retrieves Automation Orchestrator admin credentials

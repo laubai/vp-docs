@@ -12,23 +12,23 @@ include::modules/comm-attributes.adoc[]
 [id="installation-steps"]
 == Installation steps
 
-The pattern executes the following steps on the cluster.
-Subscriptions, applications, and chart overrides differ by install variant; see
-link:#variant-installation-differences[Variant installation differences].
+The pattern performs the following steps on the cluster:
 
-. Apply the Validated Patterns Operator and {rh-gitops-short} (single Argo CD).
-. Load secrets into Vault when secret loading is enabled (`global.secretLoader.disabled: false`).
-. Sync the cluster group for the selected `main.variant` under `variants/<variant>/values-<variant>.yaml`.
-. Install the AAP operator (`stable-2.7`) and the `ansible-automation-platform-instance` application with the matching override file.
-. Install the `aap-config` application to load CaC from the configured repository.
-. For hub variants, install the {ocp-data-short} operator and `openshift-data-foundations` chart to provide RWX storage for automation hub.
-. For Automation Orchestrator variants, install CloudNativePG, `vp-cloudnative-pg-cluster`, and the Automation Orchestrator operator and instance.
+. Applies the {validated-patterns-op} and {rh-gitops-short} (single Argo CD).
+. Loads secrets into Vault when secret loading is enabled (`global.secretLoader.disabled: false`).
+. Syncs the cluster group for the selected `main.variant` under `variants/<variant>/values-<variant>.yaml`.
+. Installs the AAP operator (`stable-2.7`) and the `ansible-automation-platform-instance` application with the matching override file.
+. Installs the `aap-config` application to load CaC from the configured repository.
+. For hub variants, installs the {ocp-data-short} operator and `openshift-data-foundations` chart to provide ReadWriteMany (RWX) storage for automation hub.
+. For Automation Orchestrator variants, installs CloudNativePG, `vp-cloudnative-pg-cluster`, and the Automation Orchestrator operator and instance.
 
-[id="variant-installation-differences"]
-== Variant installation differences
+Subscriptions, applications, and chart overrides differ by install variant.
+
+[id="differences-between-install-variants"]
+== Differences between install variants
 
 The pattern uses the clustergroup `variants/` folder layout.
-When `variants/` is present, the patterns operator sets `global.vpNewFolderDir=true`.
+When `variants/` is present, the {validated-patterns-op} sets `global.vpNewFolderDir=true`.
 This pattern is single-cluster; there are no managed cluster group value files under the variants.
 
 [id="variant-component-differences"]
@@ -106,35 +106,70 @@ After a successful sync, expect the following on the hub cluster.
 
 ==== `minimal-aap` (default)
 
-* Namespaces: `vault`, `external-secrets-operator`, `external-secrets`, `ansible-automation-platform`, `aap-config`
-* Installed operators: AAP operator, External Secrets Operator
-* Argo CD applications: `aap`, `aap-config`, `vault`, `openshift-external-secrets`
-* AAP instance: controller present; automation hub and Lightspeed not deployed
+* Namespaces:
+** `vault`
+** `external-secrets-operator`
+** `external-secrets`
+** `ansible-automation-platform`
+** `aap-config`
+* Operators:
+** AAP operator
+** External Secrets Operator
+* Argo CD applications:
+** `aap`
+** `aap-config`
+** `vault`
+** `openshift-external-secrets`
+* AAP instance: controller present; automation hub and Lightspeed not deployed.
 
 ==== `aap-with-hub`
 
-* Everything in `minimal-aap`, plus:
-* Namespace: `openshift-storage`
-* Operators: {ocp-data-short} (`odf-operator`)
-* Argo CD application: `odf` (`openshift-data-foundations` chart)
-* AAP instance: automation hub enabled; Lightspeed disabled
-* RWX storage classes from the ODF chart available for hub
+This variant deploys everything in `minimal-aap`, plus the following:
+
+* Namespaces:
+** `openshift-storage`
+* Operators:
+** {ocp-data-short} (`odf-operator`)
+* Argo CD application:
+** `odf` (`openshift-data-foundations` chart)
+* AAP instance: controller and automation hub enabled; Lightspeed disabled.
+* RWX storage classes from the {ocp-data-short} chart available for hub
 
 ==== `aap-with-ao`
 
-* Everything in `minimal-aap`, plus:
-* Namespaces: `cloudnative-pg`, `automation-orchestrator`
-* Operators: CloudNativePG (`certified-operators`, channel `stable-v1`), Automation Orchestrator (`stable`)
-* Argo CD applications: `vp-cloudnative-pg-cluster`, `automation-orchestrator`
+This variant deploys everything in `minimal-aap`, plus the following:
+
+* Namespaces:
+** `cloudnative-pg`
+** `automation-orchestrator`
+* Operators:
+** CloudNativePG (`certified-operators`, channel `stable-v1`)
+** Automation Orchestrator (`stable`)
+* Argo CD applications:
+** `vp-cloudnative-pg-cluster`
+** `automation-orchestrator`
 * PostgreSQL cluster named `orchestrator-postgres` with databases for Orchestrator and Temporal
-* AAP instance remains minimal (no hub, no Lightspeed)
+* AAP instance: controller present; automation hub and Lightspeed not deployed.
 
 ==== `complete-aap-ao`
 
-* Combination of hub and AO stacks:
-* {ocp-data-short} and automation hub (as in `aap-with-hub`)
-* Lightspeed enabled on the AAP instance
-* CloudNativePG and Automation Orchestrator (as in `aap-with-ao`)
+This variant combines the automation hub and Automation Orchestrator stacks. It deploys everything in `minimal-aap`, plus the following:
+
+* Namespaces:
+** `openshift-storage`
+** `cloudnative-pg`
+** `automation-orchestrator`
+* Operators:
+** {ocp-data-short} (`odf-operator`)
+** CloudNativePG (`certified-operators`, channel `stable-v1`)
+** Automation Orchestrator (`stable`)
+* Argo CD applications:
+** `odf` (`openshift-data-foundations` chart)
+** `vp-cloudnative-pg-cluster`
+** `automation-orchestrator`
+* AAP Instance: controller, automation hub and Lightspeed all enabled.
+* RWX storage classes from the {ocp-data-short} chart available for hub
+* PostgreSQL cluster named `orchestrator-postgres` with databases for Orchestrator and Temporal
 
 [id="variant-layout"]
 === Variant layout
@@ -186,7 +221,7 @@ Use this after installing `aap-with-ao` or `complete-aap-ao`.
 == Install targets
 
 Use `./pattern.sh make install` to install the pattern and load secrets (when secret loading is configured).
-Useful related targets from the pattern Makefile:
+The pattern Makefile provides the following related targets:
 
 [cols="1,3",options="header"]
 |===

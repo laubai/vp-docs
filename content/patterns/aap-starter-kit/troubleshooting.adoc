@@ -12,18 +12,21 @@ include::modules/comm-attributes.adoc[]
 [id="troubleshooting"]
 == Troubleshooting the pattern
 
+Most deployment problems with this pattern fall into three areas: Argo CD applications that do not sync, secrets that are missing from Vault, and missing storage or database prerequisites for the selected variant.
+Start by checking the deployment status, then work through the section that matches your variant.
+
 [id="checking-the-deployment-status"]
 === Checking the deployment status
 
-To list pods that are not Running or Completed:
-
+* List pods that are not Running or Completed:
++
 [source,terminal]
 ----
 $ oc get pods -A | grep -v Running | grep -v Completed
 ----
 
-To check Argo CD application health:
-
+* Check Argo CD application health:
++
 [source,terminal]
 ----
 $ ./pattern.sh make argo-healthcheck
@@ -32,38 +35,47 @@ $ ./pattern.sh make argo-healthcheck
 [id="reviewing-logs"]
 === Reviewing application logs
 
-To check the logs of a specific application pod:
-
+* Check the logs of a specific application pod:
++
 [source,terminal]
 ----
 $ oc logs -n <namespace> <pod-name>
 ----
 
-Useful namespaces by variant:
+* Check the logs in the following namespaces, depending on your variant:
 
-* `ansible-automation-platform` — AAP operator and instance (all variants)
-* `aap-config` — CaC configuration jobs
-* `openshift-storage` — {ocp-data-short} (`aap-with-hub`, `complete-aap-ao`)
-* `automation-orchestrator` — Automation Orchestrator and CNPG cluster (`aap-with-ao`, `complete-aap-ao`)
+** `ansible-automation-platform` — AAP operator and instance (all variants)
+** `aap-config` — CaC configuration jobs
+** `openshift-storage` — {ocp-data-short} (`aap-with-hub`, `complete-aap-ao`)
+** `automation-orchestrator` — Automation Orchestrator and CloudNativePG cluster (`aap-with-ao`, `complete-aap-ao`)
 
 [id="retrieving-credentials"]
 === Retrieving credentials
 
-If you cannot log in to AAP or Automation Orchestrator, retrieve credentials from the cluster:
-
+* If you cannot log in to AAP, retrieve the AAP admin credentials from the cluster:
++
 [source,terminal]
 ----
 $ ./pattern.sh scripts/ansible_get_credentials.sh
+----
+
+* If you cannot log in to Automation Orchestrator on the `aap-with-ao` or `complete-aap-ao` variant, retrieve the Automation Orchestrator admin credentials:
++
+[source,terminal]
+----
 $ ./pattern.sh scripts/ao_get_credentials.sh
 ----
 
-Confirm that secrets were loaded into Vault (`./pattern.sh make load-secrets`) and that External Secrets has projected them into the target namespaces.
+* Verify that Vault contains the secrets.
++
+If it does not, load the secrets by running `./pattern.sh make load-secrets`.
+Then confirm that the External Secrets Operator projected the secrets into the target namespaces.
 
 [id="automation-hub-storage"]
 === Automation hub storage issues
 
-If automation hub pods remain pending on `aap-with-hub` or `complete-aap-ao`, confirm that the `odf` Argo CD application is Healthy and that RWX storage classes from the {ocp-data-short} chart exist.
-Hub requires RWX storage; RWO-only clusters fail to bind hub volumes.
+If automation hub pods remain pending on `aap-with-hub` or `complete-aap-ao`, confirm that the `odf` Argo CD application is Healthy and that ReadWriteMany (RWX) storage classes from the {ocp-data-short} chart exist.
+Automation hub requires RWX storage; clusters that offer only ReadWriteOnce (RWO) storage fail to bind hub volumes.
 
 [id="automation-orchestrator-database"]
 === Automation Orchestrator database issues
@@ -72,8 +84,9 @@ If Automation Orchestrator fails to start on `aap-with-ao` or `complete-aap-ao`:
 
 * Confirm the `vp-cloudnative-pg-cluster` application is Synced and that the `orchestrator-postgres` cluster is ready.
 * Confirm Vault contains `orchestrator-postgres-secret`, `temporal-postgres-secret`, and `temporal-visibility-postgres-secret` with alphanumeric passwords.
-* Avoid passwords that contain `@`, `%`, or similar characters; AO builds a PostgreSQL URL that can break Alembic or configparser when those characters are percent-encoded.
-* Remember that CloudNativePG is not supported by Red Hat for AO databases; consult the guidance link:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/latest/install-configure_an_external_database_for_ansible_automation_platform[here] for Red Hat supported solutions.
+* Avoid passwords that contain `@`, `%`, or similar characters; Automation Orchestrator builds a PostgreSQL URL that can break Alembic or configparser when those characters are percent-encoded.
+* Red Hat does not support CloudNativePG for Automation Orchestrator databases.
+For more information about supported database options, see link:https://docs.redhat.com/en/documentation/red_hat_ansible_automation_platform/latest/install-configure_an_external_database_for_ansible_automation_platform[Configuring an external database for Ansible Automation Platform].
 
 [id="gitops-server-name-length"]
 === GitOps server DNS label length
@@ -85,4 +98,4 @@ Use the shipped variant names (`minimal-aap`, `aap-with-hub`, `aap-with-ao`, `co
 === Known issues
 
 * Red Hat does not support CloudNativePG for Automation Orchestrator databases.
-* The default CaC repository (`agof_null_config`) is a minimal placeholder; replace it with your own CaC content for real controller configuration.
+* The default CaC repository (`agof_null_config`) is a minimal placeholder repository; you must replace it with your own CaC content for real controller configuration.

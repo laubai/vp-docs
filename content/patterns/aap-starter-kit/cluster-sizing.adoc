@@ -21,7 +21,7 @@ On AWS, `m5.4xlarge` worker instances are a practical starting point for hub and
 .Minimum cluster requirements (`minimal-aap`)
 [options="header"]
 |===
-| Node role | Count | CPU | Memory | Storage
+| Node role | Count | CPU | Memory | Persistent Storage
 
 | Control plane
 | 3
@@ -47,11 +47,11 @@ On AWS, `m5.4xlarge` worker instances are a practical starting point for hub and
 | Baseline AAP controller and Vault footprint
 
 | `aap-with-hub`
-| {ocp-data-short} StorageSystem and automation hub; plan for RWX-backed volumes
+| {ocp-data-short} StorageSystem and automation hub; requires ReadWriteMany (RWX) volumes for automation hub
 
 | `aap-with-ao`
 | CloudNativePG PostgreSQL volumes and Automation Orchestrator pods
 
 | `complete-aap-ao`
-| Combined hub, Lightspeed, ODF, CNPG, and Orchestrator requirements
+| Combined automation hub, Lightspeed, {ocp-data-short}, CloudNativePG, and Automation Orchestrator requirements
 |===

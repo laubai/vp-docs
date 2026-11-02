@@ -49,7 +49,7 @@ Fork the pattern and adjust these files when you need a combination that does no
 Keep the AAP `release` field aligned with the operator channel (`stable-2.7`).
 
 [id="using-external-postgresql-for-ao"]
-=== Using an external PostgreSQL for Automation Orchestrator
+=== Replacing CloudNativePG with an external PostgreSQL database
 
 CloudNativePG is convenient for demos and labs, but Red Hat does not support it for Automation Orchestrator databases.
 For supported environments, replace or bypass `vp-cloudnative-pg-cluster` and point the Automation Orchestrator instance at an externally supported PostgreSQL 15 database.
@@ -61,7 +61,7 @@ Update Vault secrets and Orchestrator chart values accordingly.
 This pattern focuses on AAP installation and CaC.
 If you need OpenShift Virtualization edge workloads managed by AAP, start from
 link:/patterns/ansible-edge-gitops/[Ansible Edge GitOps]
-and reuse ideas from that pattern's customization guide.
+and reuse ideas from the customization guide for that pattern.
 
 [id="next-steps"]
 == Next steps
